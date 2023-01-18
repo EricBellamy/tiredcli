@@ -1,0 +1,17 @@
+{
+	"name": "tired",
+	"version": "1.0.0",
+	"description": "A global npm package that manages my private code.",
+	"main": "index.js",
+	"bin": "./bin/cli.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/EricBellamy/tiredcli.git"
+	},
+	"author": "",
+	"license": "No License",
+	"bugs": {
+		"url": "https://github.com/EricBellamy/tiredcli/issues"
+	},
+	"homepage": "https://github.com/EricBellamy/tiredcli#readme"
+}
