@@ -1,6 +1,5 @@
 module.exports = async function (arguments) {
 	if (arguments[0] === undefined) arguments.push("help");
-	console.log(arguments);
 
 	switch (arguments[0]) {
 		case "help":
@@ -26,7 +25,10 @@ module.exports = async function (arguments) {
 
 			break;
 		default: // host
-			
+			const PORT_NUMBER = parseInt(arguments[0]);
+
+			// Run the HTTP server with the valid port
+			if (Number.isInteger(PORT_NUMBER)) global.tiredRequire('commands/html/host.js')(PORT_NUMBER);
 			break;
 	}
 }
