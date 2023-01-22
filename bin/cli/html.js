@@ -5,7 +5,7 @@ module.exports = async function (arguments) {
 
 	switch (arguments[0]) {
 		case "help":
-			global.tired.require('commands/html/help.js')();
+			global.tired.root.require('commands/html/help.js')();
 			break;
 		// htmldev {PORT}
 		case "init":
@@ -33,7 +33,7 @@ module.exports = async function (arguments) {
 			const PORT_NUMBER = parseInt(arguments[0]);
 
 			// Run the HTTP server with the valid port
-			if (Number.isInteger(PORT_NUMBER)) global.tired.require('commands/html/host.js')(PORT_NUMBER);
+			if (Number.isInteger(PORT_NUMBER)) global.tired.root.require('commands/html/host.js')(PORT_NUMBER);
 			break;
 	}
 }
