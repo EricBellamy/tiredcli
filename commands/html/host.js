@@ -10,7 +10,7 @@ module.exports = async function (PORT_NUMBER, EMPTY = true) {
 		await build(changedFiles);
 		callback();
 
-		// process.exit();
+		process.exit();
 	});
 
 	// Host HTTP light-server (Hot reload)
