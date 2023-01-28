@@ -15,6 +15,16 @@ async function getIncludeSrcs(pages, pageResponses = {}) {
 	return true;
 }
 
+async function buildDocument(page, document) {
+	const pageDocument = await html.buildPage(page, document);
+
+	let exportPath = page;
+	if(exportPath.indexOf("pages/") === 0) exportPath = exportPath.substring("pages/".length);
+
+	pageDocument.removeWhitespace();
+	tired.html.dist.write(exportPath, pageDocument.toString());
+}
+
 module.exports = async function (changed = []) {
 	// Build the HTML includes for all page files & get all include URLs per page file
 	let LAST_BUILD = tired.files.readJson("build_html.json", false);
@@ -23,19 +33,19 @@ module.exports = async function (changed = []) {
 
 	// Get the include srcs per page
 	let pageResponses = {};
-	const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
-	if (rootPageErr === false) return false;
 	const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
 	if (nestedPageErr === false) return false;
+	const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
+	if (rootPageErr === false) return false;
 
 	if (changed.length != 0) {
 		// Check if any of the changed files are included in any page
 		for (const page in pageResponses) {
 			const response = pageResponses[page];
-			for (const include of response.includes) if (changed.includes(include)) await html.buildPage(response.document, page);
+			for (const include of response.includes) if (changed.includes(include)) await buildDocument(page, response.document);
 		}
 	} else {
-		for (const page in pageResponses) await html.buildPage(pageResponses[page].document, page);
+		for (const page in pageResponses) await buildDocument(page, pageResponses[page].document);
 	}
 	html.reset();
 }

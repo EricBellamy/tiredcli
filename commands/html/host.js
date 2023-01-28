@@ -1,6 +1,8 @@
 const fs = require('fs-extra');
 const build = require('./build.js');
 
+let startHost = true;
+let devExit = true;
 module.exports = async function (PORT_NUMBER, EMPTY = true) {
 	if (EMPTY) fs.emptyDirSync('.tired/html');
 	fs.ensureDirSync('.tired/html/dist');
@@ -10,11 +12,16 @@ module.exports = async function (PORT_NUMBER, EMPTY = true) {
 		await build(changedFiles);
 		callback();
 
-		process.exit();
-	});
+		console.log();
 
-	// Host HTTP light-server (Hot reload)
-	// tired.root.require('lib/html/host/lightserver.js')(PORT_NUMBER);
+		if(devExit) return process.exit();
+
+		// Host HTTP light-server (Hot reload)
+		if (startHost) {
+			startHost = false;
+			tired.root.require('lib/html/host/lightserver.js')(PORT_NUMBER);
+		}
+	});
 }
 
 // Remove the need for 2x [ ctrl + c ]
