@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const build = require('./build.js');
 
 let startHost = true;
-let devExit = true;
+let devExit = false;
 module.exports = async function (PORT_NUMBER, EMPTY = true) {
 	if (EMPTY) fs.emptyDirSync('.tired/html');
 	fs.ensureDirSync('.tired/html/dist');

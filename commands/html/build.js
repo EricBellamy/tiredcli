@@ -16,12 +16,12 @@ async function getIncludeSrcs(pages, pageResponses = {}) {
 }
 
 async function buildDocument(page, document) {
+	// Build & Clean the HTML
 	const pageDocument = await html.buildPage(page, document);
-
-	let exportPath = page;
-	if(exportPath.indexOf("pages/") === 0) exportPath = exportPath.substring("pages/".length);
-
 	pageDocument.removeWhitespace();
+
+	// Write the HTML file
+	const exportPath = page.indexOf("pages/") === 0 ? page.substring("pages/".length) : page;
 	tired.html.dist.write(exportPath, pageDocument.toString());
 }
 
