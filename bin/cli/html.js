@@ -7,6 +7,9 @@ module.exports = async function (arguments) {
 		case "help":
 			tired.root.require('commands/html/help.js')();
 			break;
+		case "test":
+			tired.root.require('commands/html/test.js');
+			break;
 		// htmldev {PORT}
 		case "init":
 

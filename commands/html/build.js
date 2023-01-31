@@ -33,8 +33,8 @@ module.exports = async function (changed = []) {
 
 	// Get the include srcs per page
 	let pageResponses = {};
-	const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
-	if (nestedPageErr === false) return false;
+	// const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
+	// if (nestedPageErr === false) return false;
 	const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
 	if (rootPageErr === false) return false;
 
