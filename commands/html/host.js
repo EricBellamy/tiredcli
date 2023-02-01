@@ -2,19 +2,19 @@ const fs = require('fs-extra');
 const build = require('./build.js');
 
 let startHost = true;
-let devExit = true;
+let devExit = false;
 module.exports = async function (PORT_NUMBER, EMPTY = true) {
 	if (EMPTY) fs.emptyDirSync('.tired/html');
 	fs.ensureDirSync('.tired/html/dist');
 
 	// Initialize watcher, runs build once on start
 	tired.root.require('lib/html/build/watch.js')(async function (changedFiles, callback) {
-		await build(changedFiles);
+		const buildResponse = await build.files(changedFiles);
 		callback();
 
 		console.log();
 
-		if(devExit) return process.exit();
+		if (devExit) return process.exit();
 
 		// Host HTTP light-server (Hot reload)
 		if (startHost) {
