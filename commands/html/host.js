@@ -2,13 +2,13 @@ const fs = require('fs-extra');
 const build = require('./build.js');
 
 let startHost = true;
-let devExit = false;
+let devExit = true;
 module.exports = async function (PORT_NUMBER, EMPTY = true) {
 	if (EMPTY) fs.emptyDirSync('.tired/html');
 	fs.ensureDirSync('.tired/html/dist');
 
 	// Initialize watcher, runs build once on start
-	tired.root.require('lib/html/build/watch.js')(async function (changedFiles, callback) {
+	tired.root.require('lib/public/html/build/watch.js')(async function (changedFiles, callback) {
 		const buildResponse = await build.files(changedFiles);
 		callback();
 
@@ -19,7 +19,7 @@ module.exports = async function (PORT_NUMBER, EMPTY = true) {
 		// Host HTTP light-server (Hot reload)
 		if (startHost) {
 			startHost = false;
-			tired.root.require('lib/html/host/lightserver.js')(PORT_NUMBER);
+			tired.root.require('lib/public/html/host/lightserver.js')(PORT_NUMBER);
 		}
 	});
 }

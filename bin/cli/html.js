@@ -2,6 +2,8 @@ module.exports = async function (arguments) {
 	if (arguments[0] === undefined) arguments.push("help");
 
 	tired.loadGlobal("html");
+	await tired.private.load("html");
+	await tired.private.init("html");
 
 	switch (arguments[0]) {
 		case "help":

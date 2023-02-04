@@ -1,7 +1,7 @@
-const html = tired.root.require("lib/html/build/html.js");
-const templates = tired.root.require("lib/html/build/templates.js");
+const html = tired.root.require("lib/public/html/build/html.js");
+const templates = tired.root.require("lib/public/html/build/templates.js");
 
-const document = tired.root.require("lib/html/build/document.js");
+const document = tired.root.require("lib/public/html/build/document.js");
 
 async function getIncludeSrcs(pages, pageResponses = {}) {
 	// Get an array of include srcs for each page as well as the final HTML
