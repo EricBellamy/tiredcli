@@ -38,7 +38,7 @@ module.exports = {
 		}
 		// console.timeEnd("templates");
 
-		// console.time("build");
+		console.time("build");
 
 		// Build the HTML includes for all page files & get all include URLs per page file
 		let LAST_BUILD = tired.files.readJson("build_html.json", false);
@@ -47,8 +47,8 @@ module.exports = {
 
 		// Get the include srcs per page
 		let pageResponses = {};
-		// const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
-		// if (nestedPageErr === false) return false;
+		const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
+		if (nestedPageErr === false) return false;
 		const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
 		if (rootPageErr === false) return false;
 
@@ -56,14 +56,25 @@ module.exports = {
 			// Check if any of the changed files are included in any page
 			for (const page in pageResponses) {
 				const response = pageResponses[page];
-				for (const include of response.includes) if (changed.includes(include)) await document.build(page, response.document);
+				for (const include of response.includes) {
+					if (changed.includes(include)) {
+						await document.build(page, response.document);
+						break;
+					}
+				}
 			}
 		} else if (initialBuild) {
 			initialBuild = false;
-			for (const page in pageResponses) await document.build(page, pageResponses[page].document);
+			for (const page in pageResponses) {
+				await document.build(page, pageResponses[page].document);
+			}
 		};
 
+		// Add a private hook activate call here for build after
+		// Add a register hook in the lazy loader and export all the files to dist
+		await tired.private.activateHook("html", "build", "finish");
+
 		console.log();
-		// console.timeEnd("build");
+		console.timeEnd("build");
 	}
 };
