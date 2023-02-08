@@ -1,7 +1,7 @@
 const html = tired.root.require("lib/public/html/build/html.js");
 const templates = tired.root.require("lib/public/html/build/templates.js");
-
 const document = tired.root.require("lib/public/html/build/document.js");
+const exporter = tired.root.require("lib/public/html/build/exporter.js");
 
 async function getIncludeSrcs(pages, pageResponses = {}) {
 	// Get an array of include srcs for each page as well as the final HTML
@@ -23,6 +23,11 @@ module.exports = {
 	files: async function (changed = []) {
 		// console.time("templates");
 
+		const buildResponses = {
+			exports: [],
+			includes: []
+		};
+
 		// Build the templates now
 		let hasTemplateChange = false;
 		for (let a = 0; a < changed.length; a++) {
@@ -33,8 +38,12 @@ module.exports = {
 			}
 		}
 		if (initialBuild || hasTemplateChange) {
-			await templates.build();
-			if (!initialBuild && changed.length === 0) return true;
+			const buildResponse = await templates.build();
+			if (buildResponse === false) return false;
+
+			tired.html.help.pushBuildResponse(buildResponses, buildResponse);
+
+			if (!initialBuild && changed.length === 0) return buildResponses;
 		}
 		// console.timeEnd("templates");
 
@@ -52,13 +61,17 @@ module.exports = {
 		const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
 		if (rootPageErr === false) return false;
 
+
 		if (!initialBuild && changed.length != 0) {
 			// Check if any of the changed files are included in any page
 			for (const page in pageResponses) {
 				const response = pageResponses[page];
 				for (const include of response.includes) {
 					if (changed.includes(include)) {
-						await document.build(page, response.document);
+						const buildResponse = await document.build(page, response.document);
+						if (buildResponse === false) return false;
+
+						tired.html.help.pushBuildResponse(buildResponses, buildResponse);
 						break;
 					}
 				}
@@ -66,9 +79,15 @@ module.exports = {
 		} else if (initialBuild) {
 			initialBuild = false;
 			for (const page in pageResponses) {
-				await document.build(page, pageResponses[page].document);
+				const buildResponse = await document.build(page, pageResponses[page].document);
+				if (buildResponse === false) return false;
+
+				tired.html.help.pushBuildResponse(buildResponses, buildResponse);
 			}
 		};
+
+		await exporter.includes(buildResponses.exports); // Export the signaled include files
+		await exporter.exportFolder(); // Move our export folder to dist
 
 		// Add a private hook activate call here for build after
 		// Add a register hook in the lazy loader and export all the files to dist
@@ -76,5 +95,7 @@ module.exports = {
 
 		console.log();
 		console.timeEnd("build");
+
+		return buildResponses;
 	}
 };
