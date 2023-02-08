@@ -22,6 +22,7 @@
 		"fs-extra": "^11.1.0",
 		"import-fresh": "^3.3.0",
 		"light-server": "^2.9.1",
+		"ngrok": "^4.3.3",
 		"node-html-parser": "^6.1.4",
 		"node-sass": "^8.0.0",
 		"proper-lockfile": "^4.1.2",
