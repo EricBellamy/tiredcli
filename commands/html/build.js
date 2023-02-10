@@ -89,8 +89,7 @@ module.exports = {
 		await exporter.includes(buildResponses.exports); // Export the signaled include files
 		await exporter.exportFolder(); // Move our export folder to dist
 
-		// Add a private hook activate call here for build after
-		// Add a register hook in the lazy loader and export all the files to dist
+		await tired.private.activateHook("html", "build", "postprocess");
 		await tired.private.activateHook("html", "build", "finish");
 
 		console.log();
