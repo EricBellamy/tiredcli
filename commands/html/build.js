@@ -25,7 +25,8 @@ module.exports = {
 
 		const buildResponses = {
 			exports: [],
-			includes: []
+			includes: [],
+			documents: [],
 		};
 
 		// Build the templates now
@@ -40,6 +41,8 @@ module.exports = {
 		if (initialBuild || hasTemplateChange) {
 			const buildResponse = await templates.build();
 			if (buildResponse === false) return false;
+
+			for (const document of buildResponse.documents) buildResponses.documents.push(document);
 
 			tired.html.help.pushBuildResponse(buildResponses, buildResponse);
 
@@ -90,6 +93,10 @@ module.exports = {
 		await exporter.exportFolder(); // Move our export folder to dist
 
 		await tired.private.activateHook("html", "build", "postprocess");
+
+		// Build the documents now
+		document.writeDocuments(buildResponses.documents); 
+
 		await tired.private.activateHook("html", "build", "finish");
 
 		console.log();
