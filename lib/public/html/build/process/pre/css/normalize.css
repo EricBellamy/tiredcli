@@ -189,3 +189,10 @@ img, video {
 svg {
 	height: auto
 }
+
+picture {
+	display: block;
+}
+picture img {
+	width: 100%;
+}
