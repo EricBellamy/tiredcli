@@ -38,7 +38,9 @@ module.exports = async function (arguments) {
 			const PORT_NUMBER = parseInt(arguments[0]);
 
 			// Run the HTTP server with the valid port
-			if (Number.isInteger(PORT_NUMBER)) tired.root.require('commands/html/host.js')(PORT_NUMBER);
+			if (Number.isInteger(PORT_NUMBER)) {
+				tired.root.require('commands/html/host.js')(PORT_NUMBER);
+			}
 			break;
 	}
 }
