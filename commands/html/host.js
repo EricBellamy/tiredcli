@@ -4,7 +4,8 @@ const ngrok = require('ngrok');
 const build = require('./build.js');
 
 tired.HOST_CONFIG = {
-	server: { status: true, active: false },
+	server: { status: false },
+	audit: { status: false },
 	ngrok: { status: false },
 }
 module.exports = async function (PORT_NUMBER, EMPTY = true) {
@@ -21,7 +22,7 @@ module.exports = async function (PORT_NUMBER, EMPTY = true) {
 
 		// If we don't need a server
 		if (tired.HOST_CONFIG.server.status === false) return process.exit();
-		else if(tired.HOST_CONFIG.server.active === true) return;
+		else if (tired.HOST_CONFIG.server.active === true) return;
 
 
 		// We're about to host the server

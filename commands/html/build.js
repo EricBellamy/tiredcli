@@ -18,52 +18,68 @@ async function getIncludeSrcs(pages, pageResponses = {}) {
 	return true;
 }
 
+async function buildTemplates(changed, buildResponses) {
+	// Build the templates now
+	let hasTemplateChange = false;
+	for (let a = 0; a < changed.length; a++) {
+		if (changed[a].indexOf('templates/') === 0) {
+			hasTemplateChange = true;
+			changed.splice(a, 1);
+			a--;
+		}
+	}
+	if (initialBuild || hasTemplateChange) {
+		const buildResponse = await templates.build();
+		if (buildResponse === false) return false;
+
+		for (const document of buildResponse.documents) buildResponses.documents.push(document);
+
+		tired.html.help.pushBuildResponse(buildResponses, buildResponse);
+
+		if (!initialBuild && changed.length === 0) return false;
+	}
+	return true;
+}
+
+const active = {
+	template: false,
+	nested: false,
+	root: true,
+	exports: false,
+}
+
 let initialBuild = true;
 module.exports = {
 	files: async function (changed = []) {
-		// console.time("templates");
-
 		const buildResponses = {
 			exports: [],
 			includes: [],
 			documents: [],
 		};
 
-		// Build the templates now
-		let hasTemplateChange = false;
-		for (let a = 0; a < changed.length; a++) {
-			if (changed[a].indexOf('templates/') === 0) {
-				hasTemplateChange = true;
-				changed.splice(a, 1);
-				a--;
-			}
+		if(active.template){
+			const templateStatus = await buildTemplates(changed, buildResponses);
+			if (templateStatus === false) return buildResponses;
 		}
-		if (initialBuild || hasTemplateChange) {
-			const buildResponse = await templates.build();
-			if (buildResponse === false) return false;
-
-			for (const document of buildResponse.documents) buildResponses.documents.push(document);
-
-			tired.html.help.pushBuildResponse(buildResponses, buildResponse);
-
-			if (!initialBuild && changed.length === 0) return buildResponses;
-		}
-		// console.timeEnd("templates");
 
 		console.time("build");
 
 		// Build the HTML includes for all page files & get all include URLs per page file
 		let LAST_BUILD = tired.files.readJson("build_html.json", false);
-		const rootPages = tired.working.files.readDirFiles.forType('', 'html', false, '');
-		const nestedPages = tired.working.files.readDirFiles.forType('pages', 'html', false, 'pages');
 
 		// Get the include srcs per page
 		let pageResponses = {};
-		const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
-		if (nestedPageErr === false) return false;
-		const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
-		if (rootPageErr === false) return false;
 
+		if (active.nested) {
+			const nestedPages = tired.working.files.readDirFiles.forType('pages', 'html', false, 'pages');
+			const nestedPageErr = await getIncludeSrcs(nestedPages, pageResponses);
+			if (nestedPageErr === false) return false;
+		}
+		if (active.root) {
+			const rootPages = tired.working.files.readDirFiles.forType('', 'html', false, '');
+			const rootPageErr = await getIncludeSrcs(rootPages, pageResponses);
+			if (rootPageErr === false) return false;
+		}
 
 		if (!initialBuild && changed.length != 0) {
 			// Check if any of the changed files are included in any page
@@ -90,12 +106,13 @@ module.exports = {
 		};
 
 		await exporter.includes(buildResponses.exports); // Export the signaled include files
-		await exporter.exportFolder(); // Move our export folder to dist
+		
+		if (active.exports) await exporter.exportFolder(); // Move our export folder to dist
 
 		await tired.private.activateHook("html", "build", "postprocess");
 
 		// Build the documents now
-		document.writeDocuments(buildResponses.documents); 
+		document.writeDocuments(buildResponses.documents);
 
 		await tired.private.activateHook("html", "build", "finish");
 
