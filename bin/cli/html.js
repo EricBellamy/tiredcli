@@ -32,7 +32,7 @@ module.exports = async function (arguments) {
 
 			break;
 		case "build":
-
+			await tired.root.require('commands/html/runbuild.js')();
 			break;
 		default: // host
 			const PORT_NUMBER = parseInt(arguments[0]);

@@ -42,7 +42,7 @@ async function buildTemplates(changed, buildResponses) {
 }
 
 const active = {
-	template: false,
+	template: true,
 	nested: false,
 	root: true,
 	exports: false,
@@ -50,6 +50,14 @@ const active = {
 
 let initialBuild = true;
 module.exports = {
+	reset: function(){
+		initialBuild = true;
+		const templateData = templates.getTemplateData();
+		templateData.modified = {};
+		templateData.data = {};
+
+		tired.cache.data.clear("build/templates.js/build");
+	},
 	files: async function (changed = []) {
 		const buildResponses = {
 			exports: [],
@@ -109,12 +117,14 @@ module.exports = {
 		
 		if (active.exports) await exporter.exportFolder(); // Move our export folder to dist
 
-		await tired.private.activateHook("html", "build", "postprocess");
+		await tired.private.activateHook("html", "build", "beforewrite");
 
 		// Build the documents now
 		document.writeDocuments(buildResponses.documents);
 
 		await tired.private.activateHook("html", "build", "finish");
+
+		await tired.private.activateHook("html", "build", "postprocess1");
 
 		console.log();
 		console.timeEnd("build");

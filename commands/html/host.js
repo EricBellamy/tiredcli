@@ -4,13 +4,12 @@ const ngrok = require('ngrok');
 const build = require('./build.js');
 
 tired.HOST_CONFIG = {
-	server: { status: false },
-	audit: { status: false },
+	server: { status: true },
+	audit: { status: true },
 	ngrok: { status: false },
 }
-module.exports = async function (PORT_NUMBER, EMPTY = true) {
-	if (EMPTY) fs.emptyDirSync('.tired/html');
-	fs.ensureDirSync('.tired/html/dist');
+module.exports = async function (PORT_NUMBER) {
+	tired.html.dist.ensureEmptyDist();
 
 	// Initialize watcher, runs build once on start
 	tired.root.require('lib/public/html/build/watch.js')(async function (changedFiles, callback) {
