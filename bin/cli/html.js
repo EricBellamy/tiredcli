@@ -5,6 +5,12 @@ module.exports = async function (arguments) {
 	await tired.private.load("html");
 	await tired.private.init("html");
 
+	try {
+		tired.working.config = await tired.working.require("config.js");
+	} catch (err) {
+		tired.working.config = {};
+	}
+
 	switch (arguments[0]) {
 		case "help":
 			tired.root.require('commands/html/help.js')();
@@ -13,6 +19,12 @@ module.exports = async function (arguments) {
 			tired.root.require('commands/html/test.js');
 			break;
 		// htmldev {PORT}
+		case "audit":
+			const AUDIT_PORT_NUMBER = parseInt(arguments[1]);
+
+			// Run the HTTP server with the valid port
+			if (Number.isInteger(AUDIT_PORT_NUMBER)) tired.root.require('commands/html/audit.js')(AUDIT_PORT_NUMBER);
+			break;
 		case "init":
 
 			break;
@@ -38,9 +50,7 @@ module.exports = async function (arguments) {
 			const PORT_NUMBER = parseInt(arguments[0]);
 
 			// Run the HTTP server with the valid port
-			if (Number.isInteger(PORT_NUMBER)) {
-				tired.root.require('commands/html/host.js')(PORT_NUMBER);
-			}
+			if (Number.isInteger(PORT_NUMBER)) tired.root.require('commands/html/host.js')(PORT_NUMBER);
 			break;
 	}
 }

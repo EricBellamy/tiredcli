@@ -41,6 +41,29 @@ async function buildTemplates(changed, buildResponses) {
 	return true;
 }
 
+async function finishBuild(buildResponses, BUILD_JSON) {
+	await exporter.includes(buildResponses.exports); // Export the signaled include files
+
+	if (active.exports) await exporter.exportFolder(); // Move our export folder to dist
+
+	await tired.private.activateHook("html", "build", "beforewrite");
+
+	// Build the documents now
+	document.writeDocuments(buildResponses.documents);
+
+	await tired.private.activateHook("html", "build", "finish");
+
+	await tired.private.activateHook("html", "build", "postprocess1");
+
+	console.log();
+	console.timeEnd("build");
+
+	tired.html.dist.tracking.save();
+	if (tired.private.env("processing") === "prod") tired.html.files.saveJson("build.json", BUILD_JSON);
+
+	return buildResponses;
+}
+
 const active = {
 	template: true,
 	nested: false,
@@ -50,7 +73,7 @@ const active = {
 
 let initialBuild = true;
 module.exports = {
-	reset: function(){
+	reset: function () {
 		initialBuild = true;
 		const templateData = templates.getTemplateData();
 		templateData.modified = {};
@@ -59,21 +82,30 @@ module.exports = {
 		tired.cache.data.clear("build/templates.js/build");
 	},
 	files: async function (changed = []) {
+		console.time("build");
+
+		tired.private.env("build_time", new Date().getTime());
+
+		const BUILD_JSON = tired.html.files.readJson("build.json", false);
+		if (tired.private.env("processing") === "prod") {
+			BUILD_JSON.number = BUILD_JSON.number != undefined ? BUILD_JSON.number + 1 : 1;
+			BUILD_JSON.time = new Date().getTime();
+		}
+		tired.private.env("build_number", BUILD_JSON.number);
+
 		const buildResponses = {
 			exports: [],
 			includes: [],
 			documents: [],
 		};
 
-		if(active.template){
+		// Initialize our dist tracking
+		tired.html.dist.tracking.init();
+
+		if (active.template) {
 			const templateStatus = await buildTemplates(changed, buildResponses);
-			if (templateStatus === false) return buildResponses;
+			if (templateStatus === false) return await finishBuild(buildResponses, BUILD_JSON);
 		}
-
-		console.time("build");
-
-		// Build the HTML includes for all page files & get all include URLs per page file
-		let LAST_BUILD = tired.files.readJson("build_html.json", false);
 
 		// Get the include srcs per page
 		let pageResponses = {};
@@ -113,22 +145,6 @@ module.exports = {
 			}
 		};
 
-		await exporter.includes(buildResponses.exports); // Export the signaled include files
-		
-		if (active.exports) await exporter.exportFolder(); // Move our export folder to dist
-
-		await tired.private.activateHook("html", "build", "beforewrite");
-
-		// Build the documents now
-		document.writeDocuments(buildResponses.documents);
-
-		await tired.private.activateHook("html", "build", "finish");
-
-		await tired.private.activateHook("html", "build", "postprocess1");
-
-		console.log();
-		console.timeEnd("build");
-
-		return buildResponses;
+		return await finishBuild(buildResponses, BUILD_JSON);
 	}
 };
