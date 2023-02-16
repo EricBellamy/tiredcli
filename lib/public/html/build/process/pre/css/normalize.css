@@ -31,9 +31,10 @@ pre {
 	font-size: 1em
 }
 
-a {
+a, a:hover, a:visited, a:active {
 	background-color: transparent;
-	text-decoration: none
+	text-decoration: none;
+	color: inherit;
 }
 
 abbr[title] {
@@ -162,7 +163,7 @@ template {
 	display: none
 }
 
-body, html, html body * {
+body, html, * {
 	margin: 0;
 	padding: 0;
 	line-height: 1.25;
@@ -193,6 +194,7 @@ svg {
 picture {
 	display: block;
 }
+
 picture img {
 	width: 100%;
 }
