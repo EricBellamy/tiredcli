@@ -79,7 +79,11 @@ module.exports = {
 		templateData.modified = {};
 		templateData.data = {};
 
+		this.resetCache();
+	},
+	resetCache: function(){
 		tired.cache.data.clear("build/templates.js/build");
+		tired.cache.data.clear("process/includes.js/html");
 	},
 	files: async function (changed = []) {
 		console.time("build");

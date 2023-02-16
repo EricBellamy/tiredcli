@@ -49,6 +49,7 @@ module.exports = async function (PORT_NUMBER) {
 
 	// Initialize watcher, runs build once on start
 	tired.root.require('lib/public/html/build/watch.js')(async function (changedFiles, callback) {
+		build.resetCache();
 		const buildResponse = await build.files(changedFiles);
 
 		callback();
