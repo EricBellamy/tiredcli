@@ -29,7 +29,8 @@ async function buildTemplates(changed, buildResponses) {
 		}
 	}
 	if (initialBuild || hasTemplateChange) {
-		const buildResponse = await templates.build();
+		await templates.loadData();
+		const buildResponse = await templates.buildPages();
 		if (buildResponse === false) return false;
 
 		for (const document of buildResponse.documents) buildResponses.documents.push(document);
