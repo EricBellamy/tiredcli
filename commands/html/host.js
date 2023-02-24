@@ -4,7 +4,7 @@ const build = require('./build.js');
 
 tired.HOST_CONFIG = {
 	server: { status: true },
-	audit: { status: true },
+	audit: { status: false },
 	ngrok: { status: false },
 }
 
