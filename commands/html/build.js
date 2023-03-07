@@ -30,6 +30,7 @@ async function buildTemplates(changed, buildResponses) {
 	}
 	if (initialBuild || hasTemplateChange) {
 		await templates.loadData();
+		await templates.runInit();
 		const buildResponse = await templates.buildPages();
 		if (buildResponse === false) return false;
 
