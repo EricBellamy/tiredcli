@@ -1,5 +1,5 @@
 module.exports = async function (PORT_NUMBER) {
-	tired.root.require('lib/public/html/host/lightserver.js')(PORT_NUMBER, true);
+	tired.root.require('lib/public/html/host/lightserver.js')(PORT_NUMBER, false);
 
 	// Log the server urls
 	tired.log.color.start('lightserver.js');
